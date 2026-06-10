@@ -1,0 +1,394 @@
+@model CVAnalyzer.Models.ProfileViewModel
+@{
+    ViewData["Title"] = "Profilim";
+    
+    // Ad soyadın baş harflerini al (Avatar için)
+    var initials = "??";
+    if (!string.IsNullOrWhiteSpace(Model.FullName))
+    {
+        var names = Model.FullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (names.Length > 1)
+        {
+            initials = $"{names[0][0]}{names[^1][0]}".ToUpper();
+        }
+        else if (names.Length == 1)
+        {
+            initials = names[0][0].ToString().ToUpper();
+        }
+    }
+}
+
+<div class="container py-5">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+            <i class="ti ti-check me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Profil Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="bg-primary text-white" style="height: 120px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);"></div>
+                <div class="card-body px-5 pb-5 position-relative">
+                    <!-- Avatar -->
+                    <div class="position-absolute" style="top: -60px;">
+                        <div class="rounded-circle bg-white p-2 shadow-sm d-inline-block">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center text-primary fw-bold" style="width: 100px; height: 100px; font-size: 2.5rem; background-color: #e0e7ff;">
+                                @initials
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 50px;">
+                        <h2 class="fw-bold mb-1">@Model.FullName</h2>
+                        <p class="text-muted mb-0"><i class="ti ti-mail me-1"></i>@Model.Email</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sol Kolon: Hakkımda ve Kişisel Bilgiler Formu -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3">
+                            <i class="ti ti-user-edit fs-4"></i>
+                        </div>
+                        <h3 class="h5 fw-bold mb-0">Profil Bilgilerini Güncelle</h3>
+                    </div>
+
+                    <form asp-action="UpdateProfile" method="post">
+                        
+                        <h5 class="fw-bold text-muted mb-3 fs-6">Kişisel Bilgiler</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="FullName" class="form-control rounded-3" placeholder="Ad Soyad" />
+                                    <label asp-for="FullName" class="text-muted"><i class="ti ti-id-badge me-1"></i> Ad Soyad</label>
+                                    <span asp-validation-for="FullName" class="text-danger small mt-1"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Email" class="form-control rounded-3 bg-light" disabled />
+                                    <label asp-for="Email" class="text-muted"><i class="ti ti-mail me-1"></i> E-posta Adresi (Okunamaz)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="BirthDate" type="date" class="form-control rounded-3" placeholder="Doğum Tarihi" />
+                                    <label asp-for="BirthDate" class="text-muted"><i class="ti ti-calendar me-1"></i> Doğum Tarihi</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="BirthPlace" class="form-control rounded-3" placeholder="Doğum Yeri" />
+                                    <label asp-for="BirthPlace" class="text-muted"><i class="ti ti-map-pin me-1"></i> Doğum Yeri</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select asp-for="Gender" class="form-select rounded-3">
+                                        <option value="">Seçiniz</option>
+                                        <option value="Erkek">Erkek</option>
+                                        <option value="Kadın">Kadın</option>
+                                        <option value="Belirtmek İstemiyorum">Belirtmek İstemiyorum</option>
+                                    </select>
+                                    <label asp-for="Gender" class="text-muted"><i class="ti ti-users me-1"></i> Cinsiyet</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select asp-for="MaritalStatus" class="form-select rounded-3">
+                                        <option value="">Seçiniz</option>
+                                        <option value="Bekar">Bekar</option>
+                                        <option value="Evli">Evli</option>
+                                    </select>
+                                    <label asp-for="MaritalStatus" class="text-muted"><i class="ti ti-heart me-1"></i> Medeni Durum</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Headline" class="form-control rounded-3" placeholder="Unvan / Meslek" />
+                                    <label asp-for="Headline" class="text-muted"><i class="ti ti-briefcase me-1"></i> Unvan / Meslek (Headline)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Phone" class="form-control rounded-3" placeholder="Telefon Numarası" />
+                                    <label asp-for="Phone" class="text-muted"><i class="ti ti-phone me-1"></i> Telefon Numarası</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Location" class="form-control rounded-3" placeholder="Şehir / Konum" />
+                                    <label asp-for="Location" class="text-muted"><i class="ti ti-map-pin me-1"></i> Şehir / Konum</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="LinkedinUrl" type="text" class="form-control rounded-3" placeholder="LinkedIn URL" />
+                                    <label asp-for="LinkedinUrl" class="text-muted"><i class="ti ti-brand-linkedin me-1"></i> LinkedIn URL</label>
+                                    <span asp-validation-for="LinkedinUrl" class="text-danger small mt-1"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold text-muted mb-3 fs-6 mt-4">Hakkımda</h5>
+                        <div class="form-floating mb-4">
+                            <textarea asp-for="Biography" class="form-control rounded-3" placeholder="Biyografi" style="height: 150px"></textarea>
+                            <label asp-for="Biography" class="text-muted"><i class="ti ti-align-left me-1"></i> Kendinizden Kısaca Bahsedin</label>
+                            <span asp-validation-for="Biography" class="text-danger small mt-1"></span>
+                        </div>
+
+                        <h5 class="fw-bold text-muted mb-3 fs-6 mt-4">Yetenek Havuzu (Skills)</h5>
+                        <div class="mb-4">
+                            <!-- Veritabanına gönderilecek gizli input -->
+                            <input type="hidden" asp-for="SkillsText" id="SkillsTextHidden" />
+                            
+                            <!-- Rozetlerin oluşacağı alan -->
+                            <div id="skills-container" class="d-flex flex-wrap gap-2 mb-3">
+                                <!-- JS ile doldurulacak -->
+                            </div>
+
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="ti ti-tags text-muted"></i></span>
+                                <input type="text" id="newSkillInput" class="form-control border-start-0 ps-0" placeholder="Örn: Python, React..." onkeypress="if(event.keyCode==13){ event.preventDefault(); addSkill(); }" />
+                                <button type="button" class="btn btn-primary px-4 fw-semibold shadow-sm" onclick="addSkill()">
+                                    Ekle <i class="ti ti-plus ms-1"></i>
+                                </button>
+                            </div>
+                            <div class="form-text mt-2">
+                                <i class="ti ti-info-circle"></i> Kutucuğa yeteneği yazıp <strong>Ekle</strong> butonuna veya <strong>Enter</strong> tuşuna basabilirsiniz. CV'nizdeki yetenekleri otomatik çekmek için alttaki "Profili Doldur" butonunu kullanın.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold shadow-sm" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none;">
+                            Değişiklikleri Kaydet <i class="ti ti-device-floppy ms-1"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Kolon: Şifre Güncelleme -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+                        <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2 me-3">
+                            <i class="ti ti-shield-lock fs-4"></i>
+                        </div>
+                        <h3 class="h5 fw-bold mb-0">Güvenlik ve Şifre</h3>
+                    </div>
+
+                    <form asp-action="UpdatePassword" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="CurrentPassword" class="form-control rounded-3" placeholder="Mevcut Şifre" />
+                            <label asp-for="CurrentPassword" class="text-muted"><i class="ti ti-key me-1"></i> Mevcut Şifre</label>
+                            <span asp-validation-for="CurrentPassword" class="text-danger small mt-1"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="NewPassword" class="form-control rounded-3" placeholder="Yeni Şifre" />
+                            <label asp-for="NewPassword" class="text-muted"><i class="ti ti-lock me-1"></i> Yeni Şifre</label>
+                            <span asp-validation-for="NewPassword" class="text-danger small mt-1"></span>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input asp-for="ConfirmNewPassword" class="form-control rounded-3" placeholder="Yeni Şifre (Tekrar)" />
+                            <label asp-for="ConfirmNewPassword" class="text-muted"><i class="ti ti-lock-check me-1"></i> Yeni Şifre (Tekrar)</label>
+                            <span asp-validation-for="ConfirmNewPassword" class="text-danger small mt-1"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-outline-danger w-100 rounded-3 py-2 fw-semibold shadow-sm">
+                            Şifremi Güncelle <i class="ti ti-refresh ms-1"></i>
+                        </button>
+                    </form>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <h6 class="text-muted mb-2"><i class="ti ti-info-circle me-1"></i> Güvenlik İpuçları</h6>
+                        <ul class="text-muted small ps-3 mb-0" style="line-height: 1.8;">
+                            <li>Şifreniz en az 6 karakter olmalıdır.</li>
+                            <li>Büyük, küçük harf ve rakam kombinasyonu kullanın.</li>
+                            <li>Şifrenizi kimseyle paylaşmayın.</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CV Portfolyosu (Geçmiş CV'lerim) -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+                <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 me-3">
+                    <i class="ti ti-file-cv fs-4"></i>
+                </div>
+                <h3 class="h5 fw-bold mb-0">Kariyer Özgeçmişlerim (CV Vitrini)</h3>
+                <a asp-controller="CV" asp-action="Analyze" class="btn btn-sm btn-outline-success ms-auto rounded-pill px-3">
+                    <i class="ti ti-plus me-1"></i> Yeni Yükle
+                </a>
+            </div>
+
+            @if (Model.CandidateCVs != null && Model.CandidateCVs.Any())
+            {
+                <div class="row g-4">
+                    @foreach (var cv in Model.CandidateCVs)
+                    {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 position-relative hover-lift transition-all">
+                                                                <div class="card-body p-4 pt-5">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded p-2 me-3">
+                                            <i class="ti ti-file-description fs-3"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold mb-1 text-truncate" style="max-width: 200px;" title="@cv.ParsedData.Headline">
+                                                @(string.IsNullOrWhiteSpace(cv.ParsedData.Headline) ? "İsimsiz CV" : cv.ParsedData.Headline)
+                                            </h5>
+                                            <p class="text-muted small mb-0"><i class="ti ti-clock me-1"></i> @cv.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-muted small mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                        @(string.IsNullOrWhiteSpace(cv.ParsedData.Summary) ? "Özet bulunamadı." : cv.ParsedData.Summary)
+                                    </p>
+
+                                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                        <span class="badge bg-light text-dark border"><i class="ti ti-stars text-warning me-1"></i> @(cv.ParsedData.Skills?.Count ?? 0) Yetenek</span>
+                                        <div class="d-flex gap-2">
+                                            <form asp-action="ImportFromCV" method="post" class="m-0">
+                                                <input type="hidden" name="cvId" value="@cv.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3" data-bs-toggle="tooltip" title="Eksik profil bilgilerini bu CV ile doldur">
+                                                    <i class="ti ti-wand me-1"></i> Profili Doldur
+                                                </button>
+                                            </form>
+                                            <form asp-action="DeleteCV" method="post" class="m-0">
+                                                <input type="hidden" name="id" value="@cv.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Bu özgeçmişi silmek istediğinize emin misiniz?');">
+                                                    <i class="ti ti-trash me-1"></i> Sil
+                                                </button>
+                                            </form>
+                                            <a asp-controller="CV" asp-action="Result" asp-route-id="@cv.Id" class="btn btn-sm btn-primary rounded-pill px-3">
+                                                İncele <i class="ti ti-arrow-right ms-1"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="card border-0 bg-light rounded-4 text-center py-5">
+                    <div class="card-body">
+                        <div class="text-muted mb-3">
+                            <i class="ti ti-file-dashed fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold text-muted">Henüz hiç CV yüklemediniz</h5>
+                        <p class="text-muted small mb-4">Sistemin gücünden faydalanmak için hemen bir CV yükleyin.</p>
+                        <a asp-controller="CV" asp-action="Analyze" class="btn btn-primary rounded-pill px-4">
+                            <i class="ti ti-cloud-upload me-2"></i> İlk CV'nizi Yükleyin
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .skill-badge {
+        cursor: pointer !important;
+    }
+    .skill-badge:hover {
+        background-color: rgba(220, 53, 69, 0.1) !important;
+        border-color: rgba(220, 53, 69, 0.25) !important;
+        color: #dc3545 !important;
+    }
+    .skill-badge .delete-icon-ui {
+        transition: all 0.2s ease;
+    }
+    .skill-badge:hover .delete-icon-ui {
+        opacity: 1 !important;
+        transform: scale(1.3);
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Sunucudan gelen başlangıç yeteneklerini alıyoruz (C# dizisi)
+        let skillsArray = @Html.Raw(Json.Serialize(Model.Skills ?? new List<string>()));
+        
+        const hiddenInput = document.getElementById('SkillsTextHidden');
+        const container = document.getElementById('skills-container');
+        const newSkillInput = document.getElementById('newSkillInput');
+
+        // Rozetleri ekrana çizme fonksiyonu
+        function renderSkills() {
+            container.innerHTML = '';
+            skillsArray.forEach((skill, index) => {
+                if(!skill.trim()) return;
+                
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fs-6 fw-normal d-inline-flex align-items-center gap-2 skill-badge transition-all';
+                badge.setAttribute("onclick", `removeSkill(${index})`);
+                badge.title = "Silmek için tıklayın";
+                badge.innerHTML = `
+                    ${skill}
+                    <i class="ti ti-x ms-1 fs-5 opacity-50 delete-icon-ui"></i>
+                `;
+                container.appendChild(badge);
+            });
+            // Arka plandaki gizli input'u, form post edildiğinde gitmesi için virgülle birleştirip güncelliyoruz
+            hiddenInput.value = skillsArray.join(',');
+        }
+
+        // Yeni yetenek ekleme fonksiyonu
+        function addSkill() {
+            const val = newSkillInput.value.trim();
+            if (val) {
+                // Eğer kullanıcı virgülle çoklu girmek isterse diye virgülle bölüyoruz
+                const parts = val.split(',').map(s => s.trim()).filter(s => s !== '');
+                parts.forEach(p => {
+                    // Aynı yetenek yoksa ekle
+                    if (!skillsArray.map(s => s.toLowerCase()).includes(p.toLowerCase())) {
+                        skillsArray.push(p);
+                    }
+                });
+                newSkillInput.value = '';
+                renderSkills();
+            }
+        }
+
+        // Yetenek silme fonksiyonu
+        function removeSkill(index) {
+            skillsArray.splice(index, 1);
+            renderSkills();
+        }
+
+        // Sayfa yüklendiğinde mevcut yetenekleri çiz
+        document.addEventListener("DOMContentLoaded", () => {
+            renderSkills();
+        });
+    </script>
+}

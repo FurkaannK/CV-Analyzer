@@ -1,0 +1,236 @@
+@model CVAnalyzer.Models.CandidateCV
+@{
+    ViewData["Title"] = "CV Analiz Sonucu";
+    var data = Model.ParsedData;
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Aday Özgeçmiş Profili</h2>
+            <p class="text-muted mb-0">Yapay zeka tarafından @Model.CreatedAt.ToLocalTime().ToString("g") tarihinde ayrıştırıldı.</p>
+        </div>
+        <a asp-action="Analyze" class="btn btn-outline-primary rounded-pill px-4">
+            <i class="ti ti-plus me-1"></i> Yeni CV Yükle
+        </a>
+    </div>
+
+    <!-- Alert / Metadata -->
+    <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center">
+        <div class="bg-success text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+            <i class="ti ti-robot fs-4"></i>
+        </div>
+        <div>
+            <h6 class="alert-heading fw-bold mb-1">CV Başarıyla JSON Formatına Çevrildi</h6>
+            <span class="small mb-0">
+                <strong>Model:</strong> @data.Metadata.ParsedWith | 
+                <strong>Dil:</strong> @data.Metadata.CvLanguage.ToUpper() | 
+                <strong>Güven Skoru:</strong> %@(data.Metadata.ConfidenceScore * 100)
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sol Kolon: Kişisel Bilgiler & Yetenekler -->
+        <div class="col-lg-4">
+            <!-- Kişisel Bilgiler -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-2 fw-bold">@(string.IsNullOrWhiteSpace(data.Personal.FullName) ? "?" : data.Personal.FullName.Substring(0,1))</span>
+                    </div>
+                    <h4 class="fw-bold">@data.Personal.FullName</h4>
+                    <p class="text-muted small mb-3">@data.Headline</p>
+                    
+                    <ul class="list-unstyled text-start small mb-0">
+                        @if (!string.IsNullOrEmpty(data.Personal.Email)) {
+                            <li class="mb-2"><i class="ti ti-mail text-primary me-2"></i> @data.Personal.Email</li>
+                        }
+                        @if (!string.IsNullOrEmpty(data.Personal.Phone)) {
+                            <li class="mb-2"><i class="ti ti-phone text-primary me-2"></i> @data.Personal.Phone</li>
+                        }
+                        @if (!string.IsNullOrEmpty(data.Personal.Location)) {
+                            <li class="mb-2"><i class="ti ti-map-pin text-primary me-2"></i> @data.Personal.Location</li>
+                        }
+                        @if (!string.IsNullOrEmpty(data.Personal.LinkedinUrl)) {
+                            <li class="mb-2"><i class="ti ti-brand-linkedin text-primary me-2"></i> <a href="@data.Personal.LinkedinUrl" target="_blank">LinkedIn</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Yetenekler -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="ti ti-stars text-warning me-2"></i> Yetenekler</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var skill in data.Skills)
+                        {
+                            var badgeClass = skill.Category.ToLower() == "soft" ? "bg-info" : "bg-primary";
+                            <span class="badge @badgeClass bg-opacity-10 text-dark border px-3 py-2 rounded-pill">
+                                @skill.Name 
+                                @if(!string.IsNullOrEmpty(skill.Level)) {
+                                    <small class="text-muted ms-1">(@skill.Level)</small>
+                                }
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Diller -->
+            @if(data.Languages.Any()) {
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="ti ti-language text-success me-2"></i> Yabancı Diller</h5>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var lang in data.Languages)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <span>@lang.Name</span>
+                                <span class="badge bg-light text-dark border">@lang.Level</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            }
+        </div>
+
+        <!-- Sağ Kolon: Özet, Deneyim, Eğitim, Projeler -->
+        <div class="col-lg-8">
+            <!-- Özet -->
+            @if (!string.IsNullOrEmpty(data.Summary))
+            {
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Hakkında (Summary)</h5>
+                        <p class="text-muted mb-0 lh-lg">@data.Summary</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Deneyimler -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="ti ti-briefcase text-primary me-2"></i> İş Deneyimleri</h5>
+                    
+                    <div class="timeline position-relative border-start border-2 ms-3 border-primary border-opacity-25 ps-4">
+                        @foreach (var exp in data.Experience)
+                        {
+                            <div class="mb-4 position-relative">
+                                <span class="position-absolute bg-primary rounded-circle" style="width: 12px; height: 12px; left: -31px; top: 6px;"></span>
+                                <h6 class="fw-bold mb-1">@exp.Title</h6>
+                                <div class="text-primary fw-medium small mb-2">@exp.Company @(!string.IsNullOrEmpty(exp.Location) ? $"- {exp.Location}" : "")</div>
+                                <div class="text-muted small mb-2">
+                                    <i class="ti ti-calendar me-1"></i> @exp.StartDate — @(exp.IsCurrent ? "Devam Ediyor" : exp.EndDate)
+                                </div>
+                                <p class="text-muted small mb-2">@exp.Description</p>
+                                
+                                @if (exp.Achievements != null && exp.Achievements.Any())
+                                {
+                                    <ul class="small text-muted mb-2 ps-3">
+                                        @foreach(var ach in exp.Achievements) {
+                                            <li>@ach</li>
+                                        }
+                                    </ul>
+                                }
+
+                                @if (exp.SkillsUsed != null && exp.SkillsUsed.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1 mt-2">
+                                        @foreach (var skill in exp.SkillsUsed)
+                                        {
+                                            <span class="badge bg-light text-secondary border px-2 py-1">@skill</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eğitim -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="ti ti-school text-info me-2"></i> Eğitim Bilgileri</h5>
+                    <div class="timeline position-relative border-start border-2 ms-3 border-info border-opacity-25 ps-4">
+                        @foreach (var edu in data.Education)
+                        {
+                            <div class="mb-4 position-relative">
+                                <span class="position-absolute bg-info rounded-circle" style="width: 12px; height: 12px; left: -31px; top: 6px;"></span>
+                                <h6 class="fw-bold mb-1">@edu.Degree - @edu.Field</h6>
+                                <div class="text-muted fw-medium small mb-1">@edu.School</div>
+                                <div class="text-muted small">
+                                    <i class="ti ti-calendar me-1"></i> @edu.StartYear — @edu.EndYear
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sertifikalar & Projeler -->
+            <div class="row g-4">
+                @if (data.Certifications != null && data.Certifications.Any())
+                {
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-3"><i class="ti ti-certificate text-danger me-2"></i> Sertifikalar</h5>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach(var cert in data.Certifications) {
+                                        <li class="mb-3 border-bottom pb-2">
+                                            <div class="fw-bold small">@cert.Name</div>
+                                            <div class="text-muted small">@cert.Issuer (@cert.Year)</div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (data.Projects != null && data.Projects.Any())
+                {
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-3"><i class="ti ti-code text-secondary me-2"></i> Projeler</h5>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach(var proj in data.Projects) {
+                                        <li class="mb-3 border-bottom pb-2">
+                                            <div class="fw-bold small">
+                                                @proj.Name 
+                                                @if(!string.IsNullOrEmpty(proj.Url)) {
+                                                    <a href="@proj.Url" target="_blank" class="ms-1"><i class="ti ti-external-link"></i></a>
+                                                }
+                                            </div>
+                                            <div class="text-muted small" style="font-size: 0.8rem;">@proj.Description</div>
+                                            @if (proj.Skills != null && proj.Skills.Any()) {
+                                                <div class="text-primary small mt-1" style="font-size: 0.75rem;">@string.Join(", ", proj.Skills)</div>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <!-- AI Embedding (Vektör Metni) -->
+            <div class="card border-0 bg-dark text-white rounded-4 mt-4 mb-5 shadow-lg">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="ti ti-brain fs-4 text-info me-2"></i>
+                        <h6 class="fw-bold mb-0">Yapay Zeka Anlamsal Vektör Özeti (Embedding Text)</h6>
+                    </div>
+                    <p class="small text-white-50 mb-0 font-monospace">@data.EmbeddingText</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

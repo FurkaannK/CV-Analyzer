@@ -1,0 +1,113 @@
+@{
+    ViewData["Title"] = "CV Analiz Platformu";
+}
+
+<!-- Hero -->
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-accent-soft text-accent mb-3">🤖 Yapay Zeka Destekli</span>
+                <h1 class="display-5 fw-semibold mb-3">CV'nizi profesyonelce <span class="text-accent">analiz edin</span></h1>
+                <p class="lead text-muted mb-4">
+                    CV'nizi PDF olarak yükleyin, hedef pozisyonunuzu seçin. Yapay zeka saniyeler içinde
+                    kapsamlı bir analiz, puan ve geliştirme önerileri sunar.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a asp-controller="CV" asp-action="Analyze" class="btn btn-accent btn-lg px-4">
+                        <i class="ti ti-scan me-2"></i>Ücretsiz Analiz Yap
+                    </a>
+                </div>
+                <div class="mt-4 d-flex gap-4 flex-wrap">
+                    <div class="stat-item">
+                        <div class="stat-num">@(ViewBag.TotalAnalyses ?? 0)+</div>
+                        <div class="stat-lbl text-muted small">CV Analiz Edildi</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">6</div>
+                        <div class="stat-lbl text-muted small">Pozisyon Kategorisi</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">%100</div>
+                        <div class="stat-lbl text-muted small">Ücretsiz</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="score-mini-circle">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="#eee" stroke-width="6"/>
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="#e94560" stroke-width="6"
+                                    stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="50"
+                                    transform="rotate(-90 40 40)"/>
+                            </svg>
+                            <div class="score-mini-num">75</div>
+                        </div>
+                        <div>
+                            <div class="fw-semibold">CV Skoru</div>
+                            <span class="badge bg-warning-subtle text-warning-emphasis">Geliştirilmeli</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small text-muted mb-1"><span>JavaScript</span><span>85%</span></div>
+                        <div class="progress" style="height:5px"><div class="progress-bar bg-accent" style="width:85%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small text-muted mb-1"><span>React</span><span>70%</span></div>
+                        <div class="progress" style="height:5px"><div class="progress-bar bg-accent" style="width:70%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small text-muted mb-1"><span>SQL</span><span>55%</span></div>
+                        <div class="progress" style="height:5px"><div class="progress-bar bg-accent" style="width:55%"></div></div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="small text-muted mb-1">Eksik Beceriler:</p>
+                        <span class="badge bg-danger-subtle text-danger me-1">Docker</span>
+                        <span class="badge bg-danger-subtle text-danger me-1">Git</span>
+                        <span class="badge bg-danger-subtle text-danger">API</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="py-5 bg-light-subtle">
+    <div class="container">
+        <h2 class="text-center fw-semibold mb-2">Neler Analiz Edilir?</h2>
+        <p class="text-center text-muted mb-5">Kapsamlı CV değerlendirmesi ile eksiklerinizi keşfedin</p>
+        <div class="row g-4">
+            @foreach (var f in new[] {
+                ("ti-chart-donut-3","CV Puanı","0-100 arası detaylı değerlendirme skoru","text-accent"),
+                ("ti-list-check","Bölüm Kontrolü","İletişim, eğitim, deneyim bölümlerinin varlığı","text-success"),
+                ("ti-sparkles","Skill Analizi","Pozisyona göre beceri eşleşme analizi","text-warning"),
+                ("ti-target","Job Match","Hedef pozisyona uyum yüzdesi ve kriterleri","text-info"),
+                ("ti-bulb","Öneriler","Kişiselleştirilmiş geliştirme tavsiyeleri","text-primary"),
+                ("ti-chart-bar","Skill Grafiği","Chart.js ile görsel beceri seviye analizi","text-danger")
+            })
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="feature-card h-100 p-4 bg-white rounded-3 border">
+                        <i class="ti @f.Item1 mb-3 @f.Item4" style="font-size:28px"></i>
+                        <h5 class="fw-semibold mb-2">@f.Item2</h5>
+                        <p class="text-muted small mb-0">@f.Item3</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="fw-semibold mb-3">Hemen başlayın — ücretsiz</h2>
+        <p class="text-muted mb-4">CV'nizi PDF olarak yükleyin, 30 saniyede kapsamlı analiz alın.</p>
+        <a asp-controller="CV" asp-action="Analyze" class="btn btn-accent btn-lg px-5">
+            <i class="ti ti-rocket me-2"></i>CV Analiz Et
+        </a>
+    </div>
+</section>

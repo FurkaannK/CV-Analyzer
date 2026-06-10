@@ -1,0 +1,204 @@
+@model CVAnalyzer.Models.User
+@{
+    ViewData["Title"] = Model.FullName + " - Aday Profili";
+    var profile = Model.UserProfile;
+    var latestCv = Model.CandidateCVs.OrderByDescending(c => c.CreatedAt).FirstOrDefault();
+    var parsed = latestCv?.ParsedData;
+}
+
+<div class="container py-4">
+    <!-- Geri Dön Butonu -->
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-light mb-4 shadow-sm border">
+        <i class="ti ti-arrow-left me-2"></i>Aday Havuzuna Dön
+    </a>
+
+    <div class="row g-4">
+        <!-- Sol Kolon: Temel Profil Bilgileri -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px;">
+                        <span class="fs-1 fw-bold">@Model.FullName.Substring(0, 1).ToUpper()</span>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-1">@Model.FullName</h4>
+                    <p class="text-muted mb-3">@(profile?.Headline ?? "Unvan Belirtilmemiş")</p>
+                    
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        @if (!string.IsNullOrWhiteSpace(profile?.LinkedinUrl))
+                        {
+                            <a href="@profile.LinkedinUrl" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                <i class="ti ti-brand-linkedin me-1"></i>LinkedIn
+                            </a>
+                        }
+                        <a href="mailto:@Model.Email" class="btn btn-primary btn-sm rounded-pill px-3">
+                            <i class="ti ti-mail me-1"></i>İletişime Geç
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top p-4">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="ti ti-mail text-muted fs-5 me-3"></i>
+                            <span class="text-dark">@Model.Email</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="ti ti-phone text-muted fs-5 me-3"></i>
+                            <span class="text-dark">@(profile?.Phone ?? "Girilmemiş")</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="ti ti-map-pin text-muted fs-5 me-3"></i>
+                            <span class="text-dark">@(profile?.Location ?? "Girilmemiş")</span>
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <i class="ti ti-calendar text-muted fs-5 me-3"></i>
+                            <span class="text-dark">Kayıt: @Model.CreatedAt.ToString("dd MMM yyyy")</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="ti ti-tools me-2 text-primary"></i>Yetenek Havuzu</h5>
+                    @if (profile?.Skills != null && profile.Skills.Any())
+                    {
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var skill in profile.Skills)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fw-normal fs-6">
+                                    @skill
+                                </span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0 fst-italic">Aday henüz bir yetenek eklememiş.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Kolon: Biyografi ve CV Verileri -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="fw-bold mb-4"><i class="ti ti-user me-2 text-primary"></i>Biyografi / Hakkında</h4>
+                    @if (!string.IsNullOrWhiteSpace(profile?.Biography))
+                    {
+                        <p class="text-secondary lh-lg" style="white-space: pre-line;">@profile.Biography</p>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 bg-light rounded-3 border border-dashed">
+                            <i class="ti ti-align-justified text-muted fs-1 mb-2 d-block"></i>
+                            <p class="text-muted mb-0">Aday henüz bir biyografi eklememiş.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Son Yüklenen CV'nin İşlenmiş Verileri (Gemini Sonucu) -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold text-dark mb-0"><i class="ti ti-file-analytics me-2 text-success"></i>Son CV Analiz Özeti</h4>
+                @if (!string.IsNullOrEmpty(latestCv?.PdfFilePath))
+                {
+                    <a href="@latestCv.PdfFilePath" target="_blank" class="btn btn-sm btn-danger shadow-sm rounded-pill px-3">
+                        <i class="ti ti-file-type-pdf me-1"></i>Orijinal PDF'i Görüntüle
+                    </a>
+                }
+            </div>
+            
+            @if (parsed != null)
+            {
+                <div class="accordion border-0 shadow-sm rounded-4 overflow-hidden" id="cvAccordion">
+                    
+                    <!-- Deneyimler -->
+                    @if (parsed.Experience != null && parsed.Experience.Any())
+                    {
+                        <div class="accordion-item border-0 border-bottom">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button bg-white text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExp">
+                                    <i class="ti ti-briefcase me-2 text-primary"></i> İş Deneyimleri (@parsed.Experience.Count)
+                                </button>
+                            </h2>
+                            <div id="collapseExp" class="accordion-collapse collapse show" data-bs-parent="#cvAccordion">
+                                <div class="accordion-body bg-light">
+                                    @foreach (var exp in parsed.Experience)
+                                    {
+                                        <div class="bg-white p-3 rounded shadow-sm mb-3 border-start border-4 border-primary">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h5 class="fw-bold mb-1">@exp.Title</h5>
+                                                    <h6 class="text-muted mb-0">@exp.Company <span class="ms-2 small"><i class="ti ti-map-pin"></i> @exp.Location</span></h6>
+                                                </div>
+                                                <span class="badge bg-light text-dark border">
+                                                    @exp.StartDate - @(exp.IsCurrent ? "Devam Ediyor" : exp.EndDate)
+                                                </span>
+                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(exp.Description))
+                                            {
+                                                <p class="text-secondary small mt-2 mb-0">@exp.Description</p>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Eğitim -->
+                    @if (parsed.Education != null && parsed.Education.Any())
+                    {
+                        <div class="accordion-item border-0 border-bottom">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-white text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEdu">
+                                    <i class="ti ti-school me-2 text-warning"></i> Eğitim Bilgileri (@parsed.Education.Count)
+                                </button>
+                            </h2>
+                            <div id="collapseEdu" class="accordion-collapse collapse" data-bs-parent="#cvAccordion">
+                                <div class="accordion-body bg-light">
+                                    @foreach (var edu in parsed.Education)
+                                    {
+                                        <div class="bg-white p-3 rounded shadow-sm mb-3 border-start border-4 border-warning">
+                                            <h5 class="fw-bold mb-1">@edu.School</h5>
+                                            <div class="text-muted">@edu.Degree, @edu.Field</div>
+                                            <div class="small text-secondary mt-1">@edu.StartYear - @edu.EndYear</div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Gemini Vektör Özeti -->
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed bg-white text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAI">
+                                <i class="ti ti-brain me-2 text-danger"></i> Yapay Zeka Aday Yorumu (Embedding Text)
+                            </button>
+                        </h2>
+                        <div id="collapseAI" class="accordion-collapse collapse" data-bs-parent="#cvAccordion">
+                            <div class="accordion-body bg-light">
+                                <div class="bg-white p-4 rounded shadow-sm border border-danger border-opacity-25 text-secondary fst-italic lh-lg">
+                                    " @(string.IsNullOrWhiteSpace(parsed.EmbeddingText) ? "Bu aday için henüz yapay zeka özeti çıkarılmamış." : parsed.EmbeddingText) "
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 bg-white rounded-4 shadow-sm border">
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="ti ti-file-x text-muted" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">İşlenmiş CV Bulunamadı</h5>
+                    <p class="text-muted">Bu aday sisteme henüz bir CV yüklememiş veya CV'si yapay zeka tarafından analiz edilmemiş.</p>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

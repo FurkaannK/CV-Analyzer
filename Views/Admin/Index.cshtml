@@ -1,0 +1,193 @@
+@model CVAnalyzer.Models.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin - Aday Havuzu";
+}
+
+<div class="container py-4">
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-8">
+            <h1 class="fw-bold text-dark mb-1" style="font-size: 2.5rem; letter-spacing: -1px;">
+                Aday <span class="text-primary">Havuzu</span>
+            </h1>
+            <p class="text-muted fs-5">Tüm adayları görüntüleyin ve mükemmel yeteneği bulun.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <div class="d-flex justify-content-md-end gap-3">
+                <div class="text-center px-4 py-2 bg-white rounded-4 shadow-sm border border-primary border-opacity-10">
+                    <h3 class="fw-bold text-primary mb-0">@Model.TotalCandidates</h3>
+                    <span class="text-muted small">Kayıtlı Aday</span>
+                </div>
+                <div class="text-center px-4 py-2 bg-white rounded-4 shadow-sm border border-success border-opacity-10">
+                    <h3 class="fw-bold text-success mb-0">@Model.TotalCVs</h3>
+                    <span class="text-muted small">İşlenmiş CV</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yapay Zeka Arama Alanı -->
+    <div class="card border-0 shadow-sm rounded-4 mb-5 overflow-hidden" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+        <div class="card-body p-4 p-md-5">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h3 class="fw-bold text-dark mb-3">
+                        <i class="ti ti-sparkles text-warning me-2"></i>Akıllı Aday Arama
+                    </h3>
+                    <p class="text-muted mb-4">
+                        Doğal dil kullanarak saniyeler içinde mükemmel eşleşmeyi bulun. (Örn: "React bilen ve İstanbul'da yaşayan 3 yıllık deneyimli yazılımcı")
+                    </p>
+                    <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden">
+                        <span class="input-group-text bg-white border-0 ps-4 text-primary"><i class="ti ti-search"></i></span>
+                        <input type="text" id="searchInput" class="form-control border-0 px-3" placeholder="Yapay zeka ile aday arayın..." style="box-shadow: none;" onkeypress="if(event.key === 'Enter') performSmartSearch()" />
+                        <button class="btn btn-primary px-5 fw-semibold" type="button" onclick="performSmartSearch()" id="searchBtn">Ara</button>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center d-none d-lg-block">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2040/2040504.png" alt="AI Search" class="img-fluid opacity-75" style="max-height: 150px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Arama Sonuçları Alanı -->
+    <div id="searchResultsContainer" class="mb-5 d-none">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold text-dark mb-0"><i class="ti ti-target me-2 text-primary"></i>Arama Sonuçları</h4>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="clearSearch()">Tüm Adayları Göster</button>
+        </div>
+        <div id="searchResultsArea">
+            <!-- Results injected here -->
+        </div>
+    </div>
+
+    <!-- Aday Listesi -->
+    <div id="allCandidatesContainer">
+        <h4 class="fw-bold text-muted mb-4"><i class="ti ti-users me-2"></i>Tüm Adaylar</h4>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            @if (!Model.Candidates.Any())
+            {
+                <div class="col-12 text-center py-5">
+                    <div class="text-muted mb-3"><i class="ti ti-user-off fs-1"></i></div>
+                    <h5 class="fw-bold text-muted">Henüz hiç aday bulunmuyor.</h5>
+                </div>
+            }
+
+        @foreach (var candidate in Model.Candidates)
+        {
+            <div class="col">
+                <div class="card border-0 shadow-sm rounded-4 h-100 hover-lift transition-all">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <span class="fs-4 fw-bold">@candidate.FullName.Substring(0, 1).ToUpper()</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">@candidate.FullName</h5>
+                                <div class="text-muted small">@candidate.Email</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="fw-medium text-dark mb-1">
+                                <i class="ti ti-briefcase me-1 text-muted"></i> @(string.IsNullOrWhiteSpace(candidate.Headline) ? "Belirtilmemiş" : candidate.Headline)
+                            </div>
+                            <div class="text-muted small">
+                                <i class="ti ti-map-pin me-1"></i> @(string.IsNullOrWhiteSpace(candidate.Location) ? "Belirtilmemiş" : candidate.Location)
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            @if (candidate.Skills.Any())
+                            {
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var skill in candidate.Skills.Take(5))
+                                    {
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill fw-normal">
+                                            @skill
+                                        </span>
+                                    }
+                                    @if (candidate.Skills.Count > 5)
+                                    {
+                                        <span class="badge bg-light text-dark border rounded-pill fw-normal">
+                                            +@(candidate.Skills.Count - 5)
+                                        </span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted small fst-italic">Yetenek eklenmemiş</span>
+                            }
+                        </div>
+
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 px-4 pb-4 pt-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">
+                                <i class="ti ti-clock me-1"></i> Son CV: @(candidate.LastCVSync?.ToString("dd MMM yyyy") ?? "Yok")
+                            </span>
+                            <a asp-controller="Admin" asp-action="CandidateProfile" asp-route-id="@candidate.UserId" class="btn btn-sm btn-outline-primary rounded-pill px-3">İncele</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function performSmartSearch() {
+            var query = $('#searchInput').val();
+            if (!query || query.trim() === '') {
+                alert('Lütfen arama yapmak için bir kelime girin.');
+                return;
+            }
+
+            var btn = $('#searchBtn');
+            var originalText = btn.html();
+            btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Yapay Zeka Düşünüyor...');
+            btn.prop('disabled', true);
+            $('#searchInput').prop('disabled', true);
+
+            $('#allCandidatesContainer').fadeOut(200, function() {
+                $('#searchResultsContainer').removeClass('d-none');
+                $('#searchResultsArea').html('<div class="text-center py-5"><div class="spinner-grow text-primary" role="status"></div><p class="mt-3 text-muted">Adaylar vektörel olarak taranıyor ve puanlanıyor...</p></div>');
+
+                $.post('@Url.Action("SmartSearch", "Admin")', { query: query })
+                    .done(function(result) {
+                        $('#searchResultsArea').html(result);
+                    })
+                    .fail(function(xhr) {
+                        $('#searchResultsArea').html('<div class="alert alert-danger border-0">Arama sırasında bir hata oluştu: ' + xhr.responseText + '</div>');
+                    })
+                    .always(function() {
+                        btn.html(originalText);
+                        btn.prop('disabled', false);
+                        $('#searchInput').prop('disabled', false);
+                    });
+            });
+        }
+
+        function clearSearch() {
+            $('#searchInput').val('');
+            $('#searchResultsContainer').addClass('d-none');
+            $('#searchResultsArea').empty();
+            $('#allCandidatesContainer').fadeIn();
+        }
+    </script>
+}
+
+<style>
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    }
+    .hover-elevate:hover {
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+    }
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+</style>

@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "CV Yükle";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-lg border-0 rounded-4 glass-card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="ti ti-cloud-upload fs-1"></i>
+                        </div>
+                        <h2 class="fw-bold mb-2">CV'nizi Sisteme Yükleyin</h2>
+                        <p class="text-muted">
+                            Yapay Zeka (AI) destekli ATS sistemimiz CV'nizi saniyeler içinde okuyup 
+                            profilinizi yapılandırılmış veriye dönüştürecektir.
+                        </p>
+                    </div>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger rounded-3 bg-danger bg-opacity-10 border-0 text-danger">
+                            <div asp-validation-summary="All" class="mb-0"></div>
+                        </div>
+                    }
+
+                    <form asp-action="Analyze" method="post" enctype="multipart/form-data" class="mt-4">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">PDF Formatında CV Seçin</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="ti ti-file-type-pdf text-danger fs-4"></i>
+                                </span>
+                                <input type="file" name="cvFile" class="form-control form-control-lg border-start-0" accept=".pdf" required />
+                            </div>
+                            <div class="form-text mt-2"><i class="ti ti-info-circle me-1"></i> Sadece .pdf formatındaki dosyalar desteklenir.</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold shadow-sm" id="btnSubmit">
+                            <i class="ti ti-wand me-2"></i> Yapay Zeka ile Analiz Et
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4 text-muted small">
+                <i class="ti ti-shield-check text-success me-1"></i> Verileriniz uçtan uca şifreli olarak işlenir ve güvenle saklanır.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('btnSubmit').addEventListener('click', function() {
+            if (document.querySelector('input[type="file"]').files.length > 0) {
+                const btn = this;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Yapay Zeka CV\'nizi Okuyor...';
+                btn.classList.add('disabled');
+            }
+        });
+    </script>
+}

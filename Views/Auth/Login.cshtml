@@ -1,0 +1,61 @@
+@model CVAnalyzer.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+    ViewData["HideNavbar"] = true;
+}
+
+<div class="row min-vh-100 g-0">
+    <!-- Sol Taraf: Görsel / Mesaj -->
+    <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-dark text-white position-relative" style="background: linear-gradient(135deg, #1e1e2f 0%, #252542 100%); overflow: hidden;">
+        <!-- Dekoratif Şekiller -->
+        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25" style="background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.4) 0%, transparent 50%);"></div>
+        
+        <div class="z-index-1 p-5 text-center">
+            <h1 class="display-4 fw-bold mb-4" style="letter-spacing: -1px;">CV Analyzer'a<br>Hoş Geldiniz</h1>
+            <p class="lead text-white-50 mb-0">Yapay zeka destekli analizlerle kariyerinize veya işe alım sürecinize güç katın.</p>
+        </div>
+    </div>
+
+    <!-- Sağ Taraf: Form -->
+    <div class="col-lg-6 d-flex align-items-center justify-content-center bg-light">
+        <div class="w-100 p-4 p-md-5" style="max-width: 500px;">
+            <div class="text-center mb-5">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white shadow-sm rounded-circle mb-4" style="width: 64px; height: 64px;">
+                    <i class="ti ti-lock text-primary fs-2"></i>
+                </div>
+                <h2 class="fw-bold mb-2">Hesabınıza Giriş Yapın</h2>
+                <p class="text-muted">Devam etmek için bilgilerinizi girin.</p>
+            </div>
+
+            <form asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4 border-0 shadow-sm" role="alert"></div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" class="form-control rounded-3 border-0 shadow-sm" placeholder="ornek@email.com" autocomplete="email" />
+                    <label asp-for="Email" class="text-muted"><i class="ti ti-mail me-2"></i>E-posta Adresi</label>
+                    <span asp-validation-for="Email" class="text-danger small mt-1"></span>
+                </div>
+
+                <div class="form-floating mb-4">
+                    <input asp-for="Password" class="form-control rounded-3 border-0 shadow-sm" placeholder="Şifreniz" autocomplete="current-password" />
+                    <label asp-for="Password" class="text-muted"><i class="ti ti-key me-2"></i>Şifre</label>
+                    <span asp-validation-for="Password" class="text-danger small mt-1"></span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-semibold shadow-sm" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none;">
+                        Giriş Yap <i class="ti ti-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-5">
+                <p class="text-muted mb-0">Hesabınız yok mu? <a asp-action="Register" class="text-primary text-decoration-none fw-semibold">Hemen Kayıt Olun</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
